@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { Home, ArrowRight, ArrowLeft, Check, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { captureTrackingData, getIPAddress } from "@/lib/tracking"
+import { captureTrackingData, getIPAddress, readGfSid } from "@/lib/tracking"
 import { Input } from "@/components/ui/input"
 import { telHref } from "@/lib/utils"
 import { AddressAutocomplete, type AddressDetails, type ServiceArea } from "./address-autocomplete"
@@ -311,6 +311,7 @@ export function SurveyCard({
         meta_event_id: earlyEventId,
         meta_event_name: 'LeadEarly',
         meta_value: 0,
+        gf_sid: readGfSid(),
         ...trackingRef.current,
       }
       await fetch('/api/submit', {
@@ -380,6 +381,7 @@ export function SurveyCard({
         stage1_event_id: stage1EventIdRef.current,
         source: `${companyName} - Survey (Complete)`,
         submittedAt: new Date().toISOString(),
+        gf_sid: readGfSid(),
         ...trackingRef.current,
       }
       await fetch('/api/submit', {
@@ -443,6 +445,7 @@ export function SurveyCard({
               stage1_event_id: stage1EventIdRef.current,
               source: `${companyName} - Survey (Complete)`,
               submittedAt: new Date().toISOString(),
+              gf_sid: readGfSid(),
               ...trackingRef.current,
             }
             await fetch('/api/submit', {
