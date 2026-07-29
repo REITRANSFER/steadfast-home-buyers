@@ -44,6 +44,26 @@ export function captureTrackingData(): TrackingData {
   }
 }
 
+// Read the GoFunnel session id captured by the tracking script, in the same
+// fallback order the script itself uses. Capturing it client-side and sending
+// it in the submit body (rather than relying on the /api/submit route reading
+// the gf_sid cookie server-side) keeps attribution intact on Meta in-app-browser
+// / Safari ITP traffic, where the cookie often does not round-trip to the server.
+export function readGfSid(): string {
+  if (typeof window === "undefined") return ""
+  const w = window as unknown as { __gf_sid?: string }
+  if (w.__gf_sid) return w.__gf_sid
+  try {
+    const ls = localStorage.getItem("gf_sid")
+    if (ls) return ls
+  } catch {
+    // localStorage unavailable
+  }
+  const m = document.cookie.match(/(?:^|; )gf_sid=([^;]*)/)
+  if (m) return decodeURIComponent(m[1])
+  return new URLSearchParams(window.location.search).get("sid") || ""
+}
+
 export async function getIPAddress(): Promise<string> {
   try {
     const res = await fetch("https://api.ipify.org?format=json", { signal: AbortSignal.timeout(3000) })
